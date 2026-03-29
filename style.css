@@ -1,176 +1,583 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#1a6b3c">
-  <title>Namaz Vakitleri</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
-</head>
-<body>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<!-- Status Bar Spacer (Android) -->
-<div class="status-bar"></div>
+:root {
+  --green-dark:   #145a32;
+  --green:        #1a6b3c;
+  --green-light:  #27ae60;
+  --green-pale:   #e8f5ee;
+  --gold:         #c9973a;
+  --gold-light:   #f0c060;
+  --bg:           #f4f6f4;
+  --surface:      #ffffff;
+  --text-primary: #1a1a1a;
+  --text-sec:     #555;
+  --text-muted:   #999;
+  --divider:      #e8e8e8;
+  --shadow:       0 2px 8px rgba(0,0,0,0.08);
+  --radius:       16px;
+  --radius-sm:    10px;
+}
 
-<!-- App Bar -->
-<div class="app-bar">
-  <div class="app-bar-left">
-    <span class="app-title">Namaz Vakitleri</span>
-    <span class="app-subtitle" id="location-text">Konum alınıyor...</span>
-  </div>
-  <div class="app-bar-actions">
-    <button class="icon-btn" id="notif-btn" title="Bildirimler">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill="currentColor"/>
-      </svg>
-    </button>
-    <button class="icon-btn" id="settings-btn" title="Ayarlar">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/>
-      </svg>
-    </button>
-  </div>
-</div>
+html, body {
+  height: 100%;
+  font-family: 'Noto Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  font-size: 15px;
+}
 
-<!-- Main Content -->
-<div class="content" id="main-content">
+.hidden { display: none !important; }
 
-  <!-- Loading -->
-  <div class="loading-screen" id="loading">
-    <div class="loading-spinner"></div>
-    <p class="loading-text">Yükleniyor...</p>
-  </div>
+/* ===== STATUS BAR ===== */
+.status-bar {
+  height: env(safe-area-inset-top, 0px);
+  background: var(--green-dark);
+}
 
-  <!-- Error -->
-  <div class="error-screen hidden" id="error-screen">
-    <div class="error-icon">📍</div>
-    <h2>Konum Alınamadı</h2>
-    <p id="error-msg">Namaz vakitlerini göstermek için konum iznine ihtiyaç var.</p>
-    <button class="btn-primary" id="retry-btn">Tekrar Dene</button>
-  </div>
+/* ===== APP BAR ===== */
+.app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 0 16px;
+  height: 56px;
+  background: var(--green);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
 
-  <!-- Main View -->
-  <div class="main-view hidden" id="main-view">
+.app-bar-left { display: flex; flex-direction: column; gap: 1px; }
 
-    <!-- Date Card -->
-    <div class="date-card">
-      <div class="date-gregorian" id="date-greg"></div>
-      <div class="date-hijri" id="date-hijri"></div>
-    </div>
+.app-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
 
-    <!-- Next Prayer Card -->
-    <div class="next-card" id="next-card">
-      <div class="next-label">Sıradaki Namaz</div>
-      <div class="next-row">
-        <div>
-          <div class="next-name" id="next-name">—</div>
-          <div class="next-arabic" id="next-arabic">—</div>
-        </div>
-        <div class="next-time" id="next-time">--:--</div>
-      </div>
-      <div class="countdown-row">
-        <div class="countdown-icon">⏱</div>
-        <div class="countdown-val" id="countdown">--:--:--</div>
-        <div class="countdown-label">kalan</div>
-      </div>
-      <div class="progress-bar-wrap">
-        <div class="progress-bar" id="progress-bar"></div>
-      </div>
-    </div>
+.app-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 400;
+}
 
-    <!-- Prayer List -->
-    <div class="section-title">Günlük Vakitler</div>
-    <div class="prayer-list" id="prayer-list"></div>
+.app-bar-actions { display: flex; gap: 4px; }
 
-    <!-- Qibla Card -->
-    <div class="section-title">Kıble</div>
-    <div class="qibla-card" id="qibla-card">
-      <div class="qibla-compass" id="qibla-compass">
-        <div class="compass-outer">
-          <div class="compass-label-n">K</div>
-          <div class="compass-label-s">G</div>
-          <div class="compass-label-e">D</div>
-          <div class="compass-label-w">B</div>
-          <div class="compass-needle-wrap" id="needle-wrap">
-            <div class="compass-needle-up"></div>
-            <div class="compass-needle-down"></div>
-          </div>
-          <div class="compass-center"></div>
-        </div>
-      </div>
-      <div class="qibla-info">
-        <div class="qibla-title">Kıble Yönü</div>
-        <div class="qibla-deg" id="qibla-deg">—°</div>
-        <div class="qibla-sub">Kuzeyden saat yönünde</div>
-      </div>
-    </div>
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.icon-btn:active { background: rgba(255,255,255,0.15); }
 
-    <!-- Notification Settings -->
-    <div class="section-title">Bildirim Ayarları</div>
-    <div class="notif-card" id="notif-settings">
-      <div class="notif-header">
-        <div>
-          <div class="notif-title">Ezan Bildirimleri</div>
-          <div class="notif-sub">Her vakit öncesinde bildir</div>
-        </div>
-        <label class="toggle">
-          <input type="checkbox" id="notif-master" onchange="toggleNotifications(this.checked)">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
+/* ===== CONTENT ===== */
+.content {
+  padding: 12px 12px 0;
+  max-width: 480px;
+  margin: 0 auto;
+}
 
-      <div class="notif-options" id="notif-options">
-        <div class="notif-option-label">Kaç dakika önce:</div>
-        <div class="notif-time-btns">
-          <button class="time-btn active" data-min="0" onclick="setNotifTime(0, this)">Vakitte</button>
-          <button class="time-btn" data-min="5" onclick="setNotifTime(5, this)">5 dk</button>
-          <button class="time-btn" data-min="10" onclick="setNotifTime(10, this)">10 dk</button>
-          <button class="time-btn" data-min="15" onclick="setNotifTime(15, this)">15 dk</button>
-        </div>
+/* ===== LOADING ===== */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 16px;
+}
 
-        <div class="notif-prayers-label">Hangi vakitler:</div>
-        <div id="notif-prayers-list"></div>
-      </div>
-    </div>
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--divider);
+  border-top-color: var(--green);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
 
-    <div style="height: 24px;"></div>
-  </div>
-</div>
+@keyframes spin { to { transform: rotate(360deg); } }
 
-<!-- Settings Sheet -->
-<div class="bottom-sheet hidden" id="settings-sheet">
-  <div class="sheet-handle"></div>
-  <div class="sheet-title">Ayarlar</div>
-  <div class="sheet-item" onclick="changeMethod()">
-    <div class="sheet-item-icon">🕌</div>
-    <div class="sheet-item-text">
-      <div>Hesap Yöntemi</div>
-      <div class="sheet-item-sub" id="method-label">Diyanet İşleri (Türkiye)</div>
-    </div>
-    <div class="sheet-arrow">›</div>
-  </div>
-  <div class="sheet-item" onclick="changeAsr()">
-    <div class="sheet-item-icon">🌤</div>
-    <div class="sheet-item-text">
-      <div>İkindi Hesabı</div>
-      <div class="sheet-item-sub" id="asr-label">Standart</div>
-    </div>
-    <div class="sheet-arrow">›</div>
-  </div>
-  <div class="sheet-item" onclick="refreshLocation()">
-    <div class="sheet-item-icon">📍</div>
-    <div class="sheet-item-text">
-      <div>Konumu Güncelle</div>
-      <div class="sheet-item-sub">GPS ile yenile</div>
-    </div>
-    <div class="sheet-arrow">›</div>
-  </div>
-  <div class="sheet-close" onclick="closeSheet('settings-sheet')">Kapat</div>
-</div>
+.loading-text { color: var(--text-muted); font-size: 14px; }
 
-<div class="sheet-overlay hidden" id="sheet-overlay" onclick="closeAllSheets()"></div>
+/* ===== ERROR ===== */
+.error-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 24px;
+  gap: 12px;
+  text-align: center;
+}
+.error-icon { font-size: 48px; }
+.error-screen h2 { font-size: 20px; font-weight: 700; }
+.error-screen p { color: var(--text-sec); font-size: 14px; line-height: 1.6; }
 
-<script src="js/app.js"></script>
-</body>
-</html>
+.btn-primary {
+  margin-top: 8px;
+  padding: 12px 32px;
+  background: var(--green);
+  color: white;
+  border: none;
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: 'Noto Sans', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(26,107,60,0.3);
+}
+.btn-primary:active { opacity: 0.85; }
+
+/* ===== DATE CARD ===== */
+.date-card {
+  background: var(--green);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.date-gregorian { font-size: 14px; font-weight: 600; }
+.date-hijri {
+  font-family: 'Noto Naskh Arabic', serif;
+  font-size: 15px;
+  opacity: 0.9;
+  direction: rtl;
+}
+
+/* ===== NEXT PRAYER CARD ===== */
+.next-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 18px 18px 14px;
+  box-shadow: var(--shadow);
+  margin-bottom: 10px;
+  border-left: 4px solid var(--green);
+}
+
+.next-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.next-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.next-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--green);
+  line-height: 1.1;
+}
+
+.next-arabic {
+  font-family: 'Noto Naskh Arabic', serif;
+  font-size: 16px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.next-time {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -1px;
+}
+
+.countdown-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.countdown-icon { font-size: 14px; }
+.countdown-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--green-light);
+  font-variant-numeric: tabular-nums;
+}
+.countdown-label { font-size: 13px; color: var(--text-muted); }
+
+.progress-bar-wrap {
+  height: 4px;
+  background: var(--divider);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--green-light));
+  border-radius: 2px;
+  transition: width 1s linear;
+  width: 0%;
+}
+
+/* ===== SECTION TITLE ===== */
+.section-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 14px 4px 6px;
+}
+
+/* ===== PRAYER LIST ===== */
+.prayer-list {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.prayer-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 14px;
+  transition: background 0.15s;
+  position: relative;
+}
+
+.prayer-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 56px;
+  right: 0;
+  height: 1px;
+  background: var(--divider);
+}
+
+.prayer-item.current {
+  background: var(--green-pale);
+}
+
+.prayer-item.passed {
+  opacity: 0.45;
+}
+
+.prayer-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.prayer-item.current .prayer-item-icon {
+  background: var(--green);
+}
+
+.prayer-item-info { flex: 1; }
+
+.prayer-item-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.prayer-item.current .prayer-item-name {
+  color: var(--green);
+}
+
+.prayer-item-arabic {
+  font-family: 'Noto Naskh Arabic', serif;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.prayer-item-time {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.prayer-item.current .prayer-item-time {
+  color: var(--green);
+}
+
+.current-chip {
+  font-size: 10px;
+  background: var(--green);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ===== QIBLA CARD ===== */
+.qibla-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 4px;
+}
+
+.compass-outer {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid var(--divider);
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compass-label-n, .compass-label-s, .compass-label-e, .compass-label-w {
+  position: absolute;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.compass-label-n { top: 4px; left: 50%; transform: translateX(-50%); color: var(--green); }
+.compass-label-s { bottom: 4px; left: 50%; transform: translateX(-50%); }
+.compass-label-e { right: 5px; top: 50%; transform: translateY(-50%); }
+.compass-label-w { left: 5px; top: 50%; transform: translateY(-50%); }
+
+.compass-needle-wrap {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compass-needle-up {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 30px solid var(--gold);
+}
+
+.compass-needle-down {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 30px solid rgba(0,0,0,0.15);
+}
+
+.compass-center {
+  width: 10px;
+  height: 10px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  position: absolute;
+  z-index: 2;
+}
+
+.qibla-info {}
+.qibla-title { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.qibla-deg { font-size: 32px; font-weight: 700; color: var(--green); margin: 4px 0 2px; }
+.qibla-sub { font-size: 12px; color: var(--text-muted); }
+
+/* ===== NOTIFICATION CARD ===== */
+.notif-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+}
+
+.notif-title { font-size: 15px; font-weight: 600; }
+.notif-sub { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+/* Toggle */
+.toggle { position: relative; display: inline-block; width: 48px; height: 28px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: var(--divider);
+  border-radius: 28px;
+  transition: 0.2s;
+}
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle input:checked + .toggle-slider { background: var(--green); }
+.toggle input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+.notif-options {
+  border-top: 1px solid var(--divider);
+  padding: 14px 16px;
+  display: none;
+}
+.notif-options.active { display: block; }
+
+.notif-option-label, .notif-prayers-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.notif-prayers-label { margin-top: 14px; }
+
+.notif-time-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.time-btn {
+  padding: 6px 14px;
+  border: 1.5px solid var(--divider);
+  background: white;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-sec);
+  font-family: 'Noto Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.time-btn.active {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.notif-prayer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.notif-prayer-row:last-child { border-bottom: none; }
+.notif-prayer-name { font-size: 14px; font-weight: 500; }
+
+/* ===== BOTTOM SHEET ===== */
+.sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+}
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  z-index: 201;
+  padding: 0 0 env(safe-area-inset-bottom, 16px);
+  animation: slideUp 0.25s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--divider);
+  border-radius: 2px;
+  margin: 12px auto 4px;
+}
+
+.sheet-title {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 20px 8px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.sheet-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.sheet-item:active { background: var(--bg); }
+.sheet-item-icon { font-size: 22px; }
+.sheet-item-text { flex: 1; font-size: 15px; font-weight: 500; }
+.sheet-item-sub { font-size: 13px; color: var(--text-muted); font-weight: 400; margin-top: 2px; }
+.sheet-arrow { font-size: 20px; color: var(--text-muted); }
+
+.sheet-close {
+  margin: 8px 16px;
+  padding: 14px;
+  text-align: center;
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  color: var(--green);
+  cursor: pointer;
+  font-size: 15px;
+}
+.sheet-close:active { opacity: 0.7; }
