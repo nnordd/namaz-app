@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a6b3c">
+  <title>Namaz Vakitleri</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Status Bar Spacer (Android) -->
+<div class="status-bar"></div>
+
+<!-- App Bar -->
+<div class="app-bar">
+  <div class="app-bar-left">
+    <span class="app-title">Namaz Vakitleri</span>
+    <span class="app-subtitle" id="location-text">Konum alınıyor...</span>
+  </div>
+  <div class="app-bar-actions">
+    <button class="icon-btn" id="notif-btn" title="Bildirimler">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill="currentColor"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="settings-btn" title="Ayarlar">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="content" id="main-content">
+
+  <!-- Loading -->
+  <div class="loading-screen" id="loading">
+    <div class="loading-spinner"></div>
+    <p class="loading-text">Yükleniyor...</p>
+  </div>
+
+  <!-- Error -->
+  <div class="error-screen hidden" id="error-screen">
+    <div class="error-icon">📍</div>
+    <h2>Konum Alınamadı</h2>
+    <p id="error-msg">Namaz vakitlerini göstermek için konum iznine ihtiyaç var.</p>
+    <button class="btn-primary" id="retry-btn">Tekrar Dene</button>
+  </div>
+
+  <!-- Main View -->
+  <div class="main-view hidden" id="main-view">
+
+    <!-- Date Card -->
+    <div class="date-card">
+      <div class="date-gregorian" id="date-greg"></div>
+      <div class="date-hijri" id="date-hijri"></div>
+    </div>
+
+    <!-- Next Prayer Card -->
+    <div class="next-card" id="next-card">
+      <div class="next-label">Sıradaki Namaz</div>
+      <div class="next-row">
+        <div>
+          <div class="next-name" id="next-name">—</div>
+          <div class="next-arabic" id="next-arabic">—</div>
+        </div>
+        <div class="next-time" id="next-time">--:--</div>
+      </div>
+      <div class="countdown-row">
+        <div class="countdown-icon">⏱</div>
+        <div class="countdown-val" id="countdown">--:--:--</div>
+        <div class="countdown-label">kalan</div>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Prayer List -->
+    <div class="section-title">Günlük Vakitler</div>
+    <div class="prayer-list" id="prayer-list"></div>
+
+    <!-- Qibla Card -->
+    <div class="section-title">Kıble</div>
+    <div class="qibla-card" id="qibla-card">
+      <div class="qibla-compass" id="qibla-compass">
+        <div class="compass-outer">
+          <div class="compass-label-n">K</div>
+          <div class="compass-label-s">G</div>
+          <div class="compass-label-e">D</div>
+          <div class="compass-label-w">B</div>
+          <div class="compass-needle-wrap" id="needle-wrap">
+            <div class="compass-needle-up"></div>
+            <div class="compass-needle-down"></div>
+          </div>
+          <div class="compass-center"></div>
+        </div>
+      </div>
+      <div class="qibla-info">
+        <div class="qibla-title">Kıble Yönü</div>
+        <div class="qibla-deg" id="qibla-deg">—°</div>
+        <div class="qibla-sub">Kuzeyden saat yönünde</div>
+      </div>
+    </div>
+
+    <!-- Notification Settings -->
+    <div class="section-title">Bildirim Ayarları</div>
+    <div class="notif-card" id="notif-settings">
+      <div class="notif-header">
+        <div>
+          <div class="notif-title">Ezan Bildirimleri</div>
+          <div class="notif-sub">Her vakit öncesinde bildir</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="notif-master" onchange="toggleNotifications(this.checked)">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <div class="notif-options" id="notif-options">
+        <div class="notif-option-label">Kaç dakika önce:</div>
+        <div class="notif-time-btns">
+          <button class="time-btn active" data-min="0" onclick="setNotifTime(0, this)">Vakitte</button>
+          <button class="time-btn" data-min="5" onclick="setNotifTime(5, this)">5 dk</button>
+          <button class="time-btn" data-min="10" onclick="setNotifTime(10, this)">10 dk</button>
+          <button class="time-btn" data-min="15" onclick="setNotifTime(15, this)">15 dk</button>
+        </div>
+
+        <div class="notif-prayers-label">Hangi vakitler:</div>
+        <div id="notif-prayers-list"></div>
+      </div>
+    </div>
+
+    <div style="height: 24px;"></div>
+  </div>
+</div>
+
+<!-- Settings Sheet -->
+<div class="bottom-sheet hidden" id="settings-sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Ayarlar</div>
+  <div class="sheet-item" onclick="changeMethod()">
+    <div class="sheet-item-icon">🕌</div>
+    <div class="sheet-item-text">
+      <div>Hesap Yöntemi</div>
+      <div class="sheet-item-sub" id="method-label">Diyanet İşleri (Türkiye)</div>
+    </div>
+    <div class="sheet-arrow">›</div>
+  </div>
+  <div class="sheet-item" onclick="changeAsr()">
+    <div class="sheet-item-icon">🌤</div>
+    <div class="sheet-item-text">
+      <div>İkindi Hesabı</div>
+      <div class="sheet-item-sub" id="asr-label">Standart</div>
+    </div>
+    <div class="sheet-arrow">›</div>
+  </div>
+  <div class="sheet-item" onclick="refreshLocation()">
+    <div class="sheet-item-icon">📍</div>
+    <div class="sheet-item-text">
+      <div>Konumu Güncelle</div>
+      <div class="sheet-item-sub">GPS ile yenile</div>
+    </div>
+    <div class="sheet-arrow">›</div>
+  </div>
+  <div class="sheet-close" onclick="closeSheet('settings-sheet')">Kapat</div>
+</div>
+
+<div class="sheet-overlay hidden" id="sheet-overlay" onclick="closeAllSheets()"></div>
+
+<script src="js/app.js"></script>
+</body>
+</html>
