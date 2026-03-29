@@ -1,0 +1,25 @@
+{
+  "name": "Namaz Vakitleri",
+  "short_name": "Namaz",
+  "description": "GPS ile konum tespiti yaparak günlük namaz vakitlerini gösterir. Ezan bildirimi, kıble yönü ve Hicri takvim içerir.",
+  "start_url": "/namaz-app/",
+  "display": "standalone",
+  "background_color": "#f4f6f4",
+  "theme_color": "#1a6b3c",
+  "orientation": "portrait",
+  "lang": "tr",
+  "icons": [
+    {
+      "src": "https://raw.githubusercontent.com/googlesamples/web-fundamentals/master/fundamentals/getting-started/your-first-progressive-web-app/images/touch/homescreen192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://raw.githubusercontent.com/googlesamples/web-fundamentals/master/fundamentals/getting-started/your-first-progressive-web-app/images/touch/homescreen512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["lifestyle", "religion"],
+  "screenshots": []
+}
